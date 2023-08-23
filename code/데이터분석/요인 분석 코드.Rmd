@@ -1,0 +1,62 @@
+---
+title: "요인 분석 코드"
+author: "201802819 이주엽"
+date: "2023-08-23"
+output: html_document
+---
+
+```{r}
+# 데이터 불러오기
+library(readr)
+df = read_csv('/Users/leejy7752/Downloads/문스3.csv',locale = locale(encoding = "CP949"))
+head(df)
+summary(df)
+
+
+# x1 : 기타 검색건수, x2 : 문화 검색건수, x3 : 숙박 검색건수, x4 : 역사 검색건수, x5 : 음식 검색건수, x6 : 자연 검색건수, x7 : 체험 검색건수, attr : 관광명소, etx : 기타, res : 식당, cafe : 카페, acc : 숙박, rc1 = 식도락, rc2 = 휴양, rc3 = 만족도
+
+```
+
+```{r}
+# 몇 개의 요인이 적절한지 확인
+colSums(is.na(df))
+df1 = df[,-c(7,13,16)]
+df2 <- df[,-1]
+str(df2)
+library(psych)
+library(nFactors)
+fa_result = fa.parallel(df2, fm='ml',fa='fa',n.iter=100)
+df2 <- as.data.frame(df2)
+nScree(df2)
+eigen(cor(df2))
+```
+
+```{r}
+# 요인 3개 만들기
+pc3 = principal(df1, nfactors=3, rotate='varimax')
+print.psych(pc3, cut = .5, sort=T)
+```
+
+```{r}
+# 요인분석 적절한지 적합성검정
+library(grid)
+library('REdaS')
+kmos = KMOS(df1)
+kmos
+cortest.bartlett(df1)
+```
+
+```{r}
+# 요인 분류
+library('semPlot')
+
+semPaths(pc3, what = 'est', residuals = F, cut = .6,
+         posCol = c('white', 'darkgreen'), negCol = c('white', 'red'),
+         edge.label.cex = .75, bg = 'white', font = 7)
+```
+
+
+
+
+
+
